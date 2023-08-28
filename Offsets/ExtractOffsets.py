@@ -348,7 +348,7 @@ def loadOffsetsFromCSV(loadedVersions, CSVPath):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('mode', help='ntoskrnl or wdigest or ci. Mode to download and extract offsets for either ntoskrnl or wdigest or ci or fltmgr')
+    parser.add_argument('mode', help='ntoskrnl or wdigest or ci or fltmgr. Mode to download and extract offsets for either ntoskrnl or wdigest or ci or fltmgr')
     parser.add_argument('-i', '--input', dest='input', required=True,
                         help='Single file or directory containing ntoskrnl.exe / wdigest.dll / ci.dll / fltmgr.sys to extract offsets from. If in download mode, the PE downloaded from MS symbols servers will be placed in this folder.')
     parser.add_argument('-o', '--output', dest='output', 
