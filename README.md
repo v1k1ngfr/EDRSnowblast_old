@@ -132,7 +132,7 @@ Version: `10.0.19041.0` and Plateform Toolset: `Visual Studio 2019 (v142)`).
 
 ### ExtractOffsets.py usage
 
-Note that `ExtractOffsets.py` tested on Windows and Linux.
+Note that `ExtractOffsets.py` (tested on Windows and Linux) requires [Radare2](https://rada.re/n/radare2.html) to be installed.
 
 ```
 # Installation of Python dependencies
@@ -142,9 +142,10 @@ pip.exe install -m .\requirements.txt
 usage: ExtractOffsets.py [-h] -i INPUT [-o OUTPUT] [-d] mode
 
 positional arguments:
-  mode                  ntoskrnl or wdigest or ci. Mode to download and extract offsets for either ntoskrnl or wdigest or ci or fltmgr
+  mode                  ntoskrnl or wdigest or ci or fltmgr. Mode to download and extract offsets for either ntoskrnl
+                        or wdigest or ci or fltmgr
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -i INPUT, --input INPUT
                         Single file or directory containing ntoskrnl.exe / wdigest.dll / ci.dll / fltmgr.sys to extract offsets from. If in download mode, the PE downloaded from MS symbols servers will be
