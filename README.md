@@ -1,4 +1,4 @@
-# EDRSnowblast
+# This project is archived, migrate to https://github.com/v1k1ngfr/EDRSnowblast
 
 ## Description  
 
